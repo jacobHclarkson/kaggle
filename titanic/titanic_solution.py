@@ -20,25 +20,29 @@ combine_df.drop(['Survived'], axis=1, inplace=True)
 combine_df['Title'] = combine_df.Name.str.extract(
     '([A-Za-z]+)\.', expand=False)
 combine_df['Title'] = combine_df['Title'].map({
-    'Sir': 'Nobleman',
-    'Countess': 'Noblewoman',
-    'Don': 'Nobleman',
-    'Lady': 'Noblewoman',
-    'Ms': 'Ms',
-    'Mme': 'Ms',
-    'Mlle': 'Ms',
-    'Mrs': 'Ms',
-    'Master': 'Mr',
+    'Sir': 'Noble',
+    'Countess': 'Noble',
+    'Don': 'Noble',
+    'Lady': 'Noble',
+    'Ms': 'Pleb',
+    'Mme': 'Pleb',
+    'Mlle': 'Pleb',
+    'Mrs': 'Pleb',
+    'Miss': 'Pleb',
+    'Master': 'Noble',
     'Col': 'Service',
     'Major': 'Service',
     'Dr': 'Service',
-    'Jonkheer': 'Mr',
+    'Mr': 'Pleb',
+    'Jonkheer': 'Pleb',
     'Rev': 'Service',
     'Capt': 'Service'
 })
 combine_df['Cabin'] = train_df['Cabin'].fillna("Unknown")
 combine_df['Cabin'] = train_df.Cabin.str.extract('([ABCDEFGU])', expand=False)
-combine_df['FamilySize'] = combine_df['SibSp'] + combine_df['Parch']
+combine_df['FamSize'] = combine_df['SibSp'] + combine_df['Parch']
+combine_df['IsAlone'] = 0
+combine_df.loc[combine_df['FamSize']==0, 'IsAlone'] = 1
 
 # supply missing values
 combine_df['Age'] = combine_df['Age'].fillna(combine_df['Age'].median())
@@ -57,14 +61,17 @@ combine_df.drop(['Name'], axis=1, inplace=True)
 # create dummies
 combine_df = pd.get_dummies(combine_df)
 
-# train a model
+# xgboost
 X_train = combine_df[:n_train]
 Y_train = y_train
 X_test = combine_df[n_train:]
 xgboost_classifier = XGBClassifier()
 xgboost_classifier.fit(X_train, Y_train)
 Y_pred = xgboost_classifier.predict(X_test)
+acc_xgboost_classifier = round(
+    xgboost_classifier.score(X_train, Y_train) * 100, 2)
 
+print(acc_xgboost_classifier)
 plot_importance(xgboost_classifier, importance_type='gain')
 plt.show()
 
