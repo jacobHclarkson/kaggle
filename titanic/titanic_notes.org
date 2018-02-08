@@ -1,1 +1,37 @@
 #+TITLE: House Prices
+* Notes
+- Parch is a mess
+* Original Features
+| Feature  | Entries | Type |
+|----------+---------+------+
+| Pclass   |     891 | C    |
+| Name     |     891 | C    |
+| Sex      |     891 | C    |
+| SibSp    |     891 | C    |
+| Parch    |     891 | C    |
+| Ticket   |     891 | C    |
+| Cabin    |     204 | C    |
+| Embarked |     889 | C    |
+| Fare     |     891 | N    |
+| Age      |     714 | N    |
+|----------+---------+------+
+* TODO New Features
+| Feature | Description       |
+|---------+-------------------|
+| Title   | Extract from name |
+|---------+-------------------|
+* TODO Features with missing values
+| Feature  | Action |
+|----------+--------|
+| Age      | Mode   |
+| Cabin    | Drop   |
+| Embarked | Mode   |
+|----------+--------|
+* TODO Features that need dummies
+| Feature | Action            |
+|---------+-------------------|
+| SibSp   | Convert to string |
+| Parch   | Convert to string |
+| Pclass  | Convert to string |
+| Sex     | -                 |
+|---------+-------------------|
