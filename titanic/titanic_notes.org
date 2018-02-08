@@ -1,6 +1,7 @@
-#+TITLE: House Prices
+#+TITLE: Titanic
 * Notes
-- Parch is a mess
+** TODO do better with title
+** TODO investigate ticket/cabin
 * Original Features
 | Feature  | Entries | Type |
 |----------+---------+------+
@@ -15,19 +16,16 @@
 | Fare     |     891 | N    |
 | Age      |     714 | N    |
 |----------+---------+------+
-* TODO New Features
-| Feature | Description       |
-|---------+-------------------|
-| Title   | Extract from name |
-|---------+-------------------|
-* TODO Features with missing values
+* DONE Features with missing values
+  CLOSED: [2018-02-08 Thu 14:02]
 | Feature  | Action |
 |----------+--------|
-| Age      | Mode   |
+| Age      | Median |
 | Cabin    | Drop   |
 | Embarked | Mode   |
 |----------+--------|
-* TODO Features that need dummies
+* DONE Features that need dummies
+  CLOSED: [2018-02-08 Thu 14:02]
 | Feature | Action            |
 |---------+-------------------|
 | SibSp   | Convert to string |
