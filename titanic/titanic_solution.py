@@ -40,9 +40,19 @@ combine_df['Title'] = combine_df['Title'].map({
 })
 combine_df['Cabin'] = train_df['Cabin'].fillna("Unknown")
 combine_df['Cabin'] = train_df.Cabin.str.extract('([ABCDEFGU])', expand=False)
+
 combine_df['FamSize'] = combine_df['SibSp'] + combine_df['Parch']
 combine_df['IsAlone'] = 0
+
 combine_df.loc[combine_df['FamSize']==0, 'IsAlone'] = 1
+combine_df.loc[combine_df['Age']<=8,'Age']=0
+combine_df.loc[(combine_df['Age']>8) & (combine_df['Age']<=64),'Age']=1
+combine_df.loc[(combine_df['Age']>64),'Age']=2
+
+combine_df.loc[ combine_df['Fare'] <= 7.91, 'Fare'] = 0
+combine_df.loc[(combine_df['Fare'] > 7.91) & (combine_df['Fare'] <= 14.454), 'Fare'] = 1
+combine_df.loc[(combine_df['Fare'] > 14.454) & (combine_df['Fare'] <= 31), 'Fare']   = 2
+combine_df.loc[ combine_df['Fare'] > 31, 'Fare'] = 3
 
 # supply missing values
 combine_df['Age'] = combine_df['Age'].fillna(combine_df['Age'].median())
@@ -52,6 +62,7 @@ combine_df['Fare'] = combine_df['Fare'].fillna(combine_df['Fare'].median())
 
 # convert features
 combine_df['Pclass'] = combine_df['Pclass'].astype(str)
+combine_df['Age'] = combine_df['Age'].astype(str)
 
 # drop features that we aren't using
 combine_df.drop(['PassengerId'], axis=1, inplace=True)
