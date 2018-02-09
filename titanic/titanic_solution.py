@@ -8,6 +8,9 @@ from sklearn.svm import SVC, LinearSVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 import matplotlib.pyplot as plt
+from vecstack import stacking
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 print()
 
 # read data
@@ -81,24 +84,46 @@ combine_df = pd.get_dummies(combine_df)
 
 # prep data for learning
 X_train = combine_df[:n_train]
-Y_train = y_train
 X_test = combine_df[n_train:]
 
-# xgboost
-xgboost_classifier = XGBClassifier(n_estimators=1000, n_jobs=4)
+# STACKING
+#---------
+# initialize base level models
+models = [
+    LogisticRegression(),
+    KNeighborsClassifier(),
+    RandomForestClassifier()
+]
 
-xgboost_classifier.fit(X_train, Y_train)
-xgboost_pred = xgboost_classifier.predict(X_test)
-acc_xgboost_classifier = round(
-    xgboost_classifier.score(X_train, Y_train) * 100, 2)
-print(acc_xgboost_classifier)
-plot_importance(xgboost_classifier, importance_type='gain')
-plt.show()
+# compute stacking features
+S_train, S_test = stacking(
+    models,
+    X_train,
+    y_train,
+    X_test,
+    regression=False,
+    metric=accuracy_score,
+    n_folds=4,
+    stratified=True,
+    shuffle=True,
+    random_state=0,
+    verbose=2)
+
+# initialize 2nd level model
+model = XGBClassifier()
+
+# fit 2nd level model
+model = model.fit(S_train, y_train)
+
+# predict
+y_pred = model.predict(S_test)
 
 # save result
 submission = pd.DataFrame({
     "PassengerId": test_df["PassengerId"],
-    "Survived": xgboost_pred
+    "Survived": y_pred
 })
 
 submission.to_csv('titanic_submission.csv', index=False)
+
+print("working")
