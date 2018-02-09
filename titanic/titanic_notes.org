@@ -4,6 +4,18 @@
    CLOSED: [2018-02-08 Thu 14:54]
 ** DONE investigate ticket/cabin
    CLOSED: [2018-02-08 Thu 15:15]
+** DONE add bands
+   CLOSED: [2018-02-08 Thu 16:28]
+** DONE test basic ensemble
+   CLOSED: [2018-02-08 Thu 17:01]
+This was an utter disaster
+** DONE test tuned xgboost
+   CLOSED: [2018-02-09 Fri 13:00]
+** DONE test different base and meta models
+   CLOSED: [2018-02-09 Fri 14:06]
+** DONE remove dummies for ordinals (pclass, fare) and sex
+   CLOSED: [2018-02-09 Fri 14:40]
+** TODO test with dummies removed
 * Original Features
 | Feature  | Entries | Type |
 |----------+---------+------+

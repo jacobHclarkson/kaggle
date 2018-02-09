@@ -1,15 +1,16 @@
 # titanic solution
 
+# wrangling
 import pandas as pd
-from xgboost import XGBClassifier
-from xgboost import plot_importance
-from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC, LinearSVC
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
+
+# visualization
 import matplotlib.pyplot as plt
+
+# ml
+from xgboost import XGBClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, ExtraTreesClassifier
 from vecstack import stacking
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 print()
 
@@ -71,16 +72,22 @@ combine_df['Embarked'] = combine_df['Embarked'].fillna(
 combine_df['Fare'] = combine_df['Fare'].fillna(combine_df['Fare'].median())
 
 # convert features
-combine_df['Pclass'] = combine_df['Pclass'].astype(str)
 combine_df['Age'] = combine_df['Age'].astype(str)
+combine_df['Sex'] = combine_df['Sex'].map({'female': 0, 'male': 1})
 
-# drop features that we aren't using
-combine_df.drop(['PassengerId'], axis=1, inplace=True)
-combine_df.drop(['Ticket'], axis=1, inplace=True)
-combine_df.drop(['Name'], axis=1, inplace=True)
 
 # create dummies
-combine_df = pd.get_dummies(combine_df)
+def create_dummies(df, column_name):
+    dummies = pd.get_dummies(df[column_name], prefix=column_name)
+    df = pd.concat([df, dummies], axis=1)
+    return df
+
+for column in ["Cabin", "Title", "Embarked"]:
+    combine_df = create_dummies(combine_df, column)
+
+# drop features that we aren't using
+for col in ['PassengerId', 'Ticket', 'Name', 'Cabin', 'Title', 'Embarked']:
+    combine_df.drop([col], axis=1, inplace=True)
 
 # prep data for learning
 X_train = combine_df[:n_train]
@@ -90,9 +97,10 @@ X_test = combine_df[n_train:]
 #---------
 # initialize base level models
 models = [
-    LogisticRegression(),
-    KNeighborsClassifier(),
-    RandomForestClassifier()
+    XGBClassifier(),
+    AdaBoostClassifier(),
+    GradientBoostingClassifier(),
+    ExtraTreesClassifier()
 ]
 
 # compute stacking features
@@ -103,14 +111,14 @@ S_train, S_test = stacking(
     X_test,
     regression=False,
     metric=accuracy_score,
-    n_folds=4,
+    n_folds=5,
     stratified=True,
     shuffle=True,
     random_state=0,
     verbose=2)
 
 # initialize 2nd level model
-model = XGBClassifier()
+model = LogisticRegression()
 
 # fit 2nd level model
 model = model.fit(S_train, y_train)
