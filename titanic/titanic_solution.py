@@ -3,6 +3,11 @@
 import pandas as pd
 from xgboost import XGBClassifier
 from xgboost import plot_importance
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC, LinearSVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+import matplotlib.pyplot as plt
 print()
 
 # read data
@@ -44,15 +49,17 @@ combine_df['Cabin'] = train_df.Cabin.str.extract('([ABCDEFGU])', expand=False)
 combine_df['FamSize'] = combine_df['SibSp'] + combine_df['Parch']
 combine_df['IsAlone'] = 0
 
-combine_df.loc[combine_df['FamSize']==0, 'IsAlone'] = 1
-combine_df.loc[combine_df['Age']<=8,'Age']=0
-combine_df.loc[(combine_df['Age']>8) & (combine_df['Age']<=64),'Age']=1
-combine_df.loc[(combine_df['Age']>64),'Age']=2
+combine_df.loc[combine_df['FamSize'] == 0, 'IsAlone'] = 1
+combine_df.loc[combine_df['Age'] <= 8, 'Age'] = 0
+combine_df.loc[(combine_df['Age'] > 8) & (combine_df['Age'] <= 64), 'Age'] = 1
+combine_df.loc[(combine_df['Age'] > 64), 'Age'] = 2
 
-combine_df.loc[ combine_df['Fare'] <= 7.91, 'Fare'] = 0
-combine_df.loc[(combine_df['Fare'] > 7.91) & (combine_df['Fare'] <= 14.454), 'Fare'] = 1
-combine_df.loc[(combine_df['Fare'] > 14.454) & (combine_df['Fare'] <= 31), 'Fare']   = 2
-combine_df.loc[ combine_df['Fare'] > 31, 'Fare'] = 3
+combine_df.loc[combine_df['Fare'] <= 7.91, 'Fare'] = 0
+combine_df.loc[(combine_df['Fare'] > 7.91) & (combine_df['Fare'] <= 14.454),
+               'Fare'] = 1
+combine_df.loc[(combine_df['Fare'] > 14.454) & (combine_df['Fare'] <= 31),
+               'Fare'] = 2
+combine_df.loc[combine_df['Fare'] > 31, 'Fare'] = 3
 
 # supply missing values
 combine_df['Age'] = combine_df['Age'].fillna(combine_df['Age'].median())
@@ -72,16 +79,18 @@ combine_df.drop(['Name'], axis=1, inplace=True)
 # create dummies
 combine_df = pd.get_dummies(combine_df)
 
-# xgboost
+# prep data for learning
 X_train = combine_df[:n_train]
 Y_train = y_train
 X_test = combine_df[n_train:]
-xgboost_classifier = XGBClassifier()
+
+# xgboost
+xgboost_classifier = XGBClassifier(n_estimators=1000, n_jobs=4)
+
 xgboost_classifier.fit(X_train, Y_train)
-Y_pred = xgboost_classifier.predict(X_test)
+xgboost_pred = xgboost_classifier.predict(X_test)
 acc_xgboost_classifier = round(
     xgboost_classifier.score(X_train, Y_train) * 100, 2)
-
 print(acc_xgboost_classifier)
 plot_importance(xgboost_classifier, importance_type='gain')
 plt.show()
@@ -89,7 +98,7 @@ plt.show()
 # save result
 submission = pd.DataFrame({
     "PassengerId": test_df["PassengerId"],
-    "Survived": Y_pred
+    "Survived": xgboost_pred
 })
 
 submission.to_csv('titanic_submission.csv', index=False)
