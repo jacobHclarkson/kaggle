@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 # ml
-from sklearn.linear_model import ElasticNet
+from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.kernel_ridge import KernelRidge
 from xgboost import XGBRegressor
@@ -87,7 +87,7 @@ X_test = combine_df[n_train:]
 
 # initialize base level models
 models = [
-    ElasticNet(),
+    XGBRegressor(),
     GradientBoostingRegressor(),
     KernelRidge()
 ]
@@ -106,7 +106,7 @@ S_train, S_test = stacking(
     verbose=2)
 
 # initialize 2nd level model
-model = XGBRegressor()
+model = LinearRegression()
 
 # fit 2nd level model
 model = model.fit(S_train, y_train)
