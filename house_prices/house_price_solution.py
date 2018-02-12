@@ -5,6 +5,12 @@ import pandas as pd
 import numpy as np
 
 # ml
+from sklearn.linear_model import ElasticNet
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.kernel_ridge import KernelRidge
+from xgboost import XGBRegressor
+from vecstack import stacking
+from sklearn.metrics import mean_absolute_error
 
 # visualization
 import matplotlib.pyplot as plt
@@ -78,5 +84,41 @@ combine_df = pd.get_dummies(combine_df)
 X_train = combine_df[:n_train]
 Y_train = y_train
 X_test = combine_df[n_train:]
+
+# initialize base level models
+models = [
+    ElasticNet(),
+    GradientBoostingRegressor(),
+    KernelRidge()
+]
+
+# compute stacking features
+S_train, S_test = stacking(
+    models,
+    X_train,
+    y_train,
+    X_test,
+    regression=True,
+    metric=mean_absolute_error,
+    n_folds=4,
+    shuffle=True,
+    random_state=0,
+    verbose=2)
+
+# initialize 2nd level model
+model = XGBRegressor()
+
+# fit 2nd level model
+model = model.fit(S_train, y_train)
+
+# predict
+y_pred = np.expm1(model.predict(S_test))
+
+# save result
+submission = pd.DataFrame({
+    "Id": test_df["Id"],
+    "SalePrice": y_pred
+})
+submission.to_csv('house_submission.csv', index=False)
 
 print("working")
