@@ -52,7 +52,6 @@ total = combine_df.isnull().sum().sort_values(ascending=False)
 percent = (combine_df.isnull().sum() /
            combine_df.isnull().count()).sort_values(ascending=False)
 missing_data = pd.concat([total, percent], axis=1, keys=['Total', 'Percent'])
-# print(missing_data.head(40))
 
 # dealing with missing data
 # fill these with "None"
@@ -87,7 +86,7 @@ X_test = combine_df[n_train:]
 
 # initialize base level models
 models = [
-    XGBRegressor(),
+    XGBRegressor(n_jobs=4),
     GradientBoostingRegressor(),
     KernelRidge()
 ]
